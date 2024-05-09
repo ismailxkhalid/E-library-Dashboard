@@ -9,6 +9,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   return (
@@ -35,8 +36,14 @@ const Login = () => {
             <Input id="password" type="password" required />
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="grid gap-2">
           <Button className="w-full">Sign in</Button>
+          <div className="mt-4 text-center text-sm">
+            Don't have an account?{" "}
+            <Link to="/signup" className="underline">
+              Sign up
+            </Link>
+          </div>
         </CardFooter>
       </Card>
     </div>
