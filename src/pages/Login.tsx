@@ -40,7 +40,7 @@ const Login = () => {
           <Button className="w-full">Sign in</Button>
           <div className="mt-4 text-center text-sm">
             Don't have an account?{" "}
-            <Link to="/signup" className="underline">
+            <Link to="/auth/signup" className="underline">
               Sign up
             </Link>
           </div>
