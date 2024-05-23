@@ -24,7 +24,7 @@ function Signup() {
         <CardContent>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="first-name">First name</Label>
+              <Label htmlFor="first-name">Name</Label>
               <Input id="first-name" placeholder="Max" required />
             </div>
             <div className="grid gap-2">
@@ -47,7 +47,7 @@ function Signup() {
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
             <Link to="/auth/login" className="underline">
-              Sign in
+              Log in
             </Link>
           </div>
         </CardContent>
