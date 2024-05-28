@@ -13,6 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { login } from "@/http/api";
+import { LoaderPinwheel } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -69,8 +70,14 @@ const Login = () => {
           </div>
         </CardContent>
         <CardFooter className="grid gap-2">
-          <Button onClick={handleLogin} className="w-full">
-            Log in
+          <Button
+            onClick={handleLogin}
+            className="w-full flex gap-2 items-center justify-center "
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending && <LoaderPinwheel className="animate-spin" />}
+
+            <span> Log in</span>
           </Button>
           <div className="mt-4 text-center text-sm">
             Don't have an account?{" "}
