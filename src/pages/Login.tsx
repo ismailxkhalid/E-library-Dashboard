@@ -15,6 +15,7 @@ import { useMutation } from "@tanstack/react-query";
 import { login } from "@/http/api";
 import { LoaderPinwheel, Eye, EyeOff } from "lucide-react";
 import { AxiosError } from "axios";
+import useTokenStore from "@/store";
 
 // Define a type for the error response
 interface ErrorResponse {
@@ -22,6 +23,7 @@ interface ErrorResponse {
 }
 
 const Login = () => {
+  const { token, setToken } = useTokenStore();
   const navigate = useNavigate();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -30,8 +32,8 @@ const Login = () => {
 
   const mutation = useMutation({
     mutationFn: login,
-    onSuccess: (data) => {
-      console.log("login success", data);
+    onSuccess: (response) => {
+      setToken(response.data.token);
       // Redirect to dashboard
       navigate("/dashboard/home");
     },
