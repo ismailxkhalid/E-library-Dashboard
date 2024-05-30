@@ -23,7 +23,7 @@ interface ErrorResponse {
 }
 
 const Login = () => {
-  const { token, setToken } = useTokenStore();
+  const { setToken } = useTokenStore();
   const navigate = useNavigate();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);

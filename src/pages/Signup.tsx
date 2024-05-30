@@ -15,6 +15,7 @@ import { signUp } from "@/http/api";
 import { LoaderPinwheel } from "lucide-react";
 import { AxiosError } from "axios";
 import { Eye, EyeOff } from "lucide-react"; // Import eye icons
+import useTokenStore from "@/store";
 
 // Define a type for the error response
 interface ErrorResponse {
@@ -22,6 +23,7 @@ interface ErrorResponse {
 }
 
 function Signup() {
+  const { setToken } = useTokenStore();
   const navigate = useNavigate();
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -31,8 +33,9 @@ function Signup() {
 
   const mutation = useMutation({
     mutationFn: signUp,
-    onSuccess: (data) => {
-      console.log("signup success", data);
+    onSuccess: (response) => {
+      setToken(response.data.token);
+
       // Redirect to dashboard
       navigate("/dashboard/home");
     },
