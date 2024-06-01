@@ -18,3 +18,7 @@ export const signUp = (data: {
 }) => {
   return api.post("api/users/signup", data);
 };
+
+export const getBooks = async () => {
+  return api.get("api/books");
+};

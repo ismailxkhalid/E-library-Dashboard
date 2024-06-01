@@ -1,6 +1,7 @@
 import { Link, Navigate, Outlet } from "react-router-dom";
 import {
   Bell,
+  BookCopy,
   CircleUser,
   Home,
   LineChart,
@@ -10,6 +11,7 @@ import {
   Search,
   ShoppingCart,
   Users,
+  SquareLibrary,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -32,8 +34,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import useTokenStore from "@/store";
+import { useState } from "react";
 
 function DashboardLayout() {
+  const [selected, setSelected] = useState("home");
   const { token, setToken } = useTokenStore();
   if (!token) {
     return <Navigate to="/auth/login" replace />;
@@ -49,8 +53,8 @@ function DashboardLayout() {
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link to="/" className="flex items-center gap-2 font-semibold">
-              <Package2 className="h-6 w-6" />
-              <span className="">Digital Dream</span>
+              <BookCopy className="h-6 w-6" />
+              <span className="">ZenBook</span>
             </Link>
             <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
               <Bell className="h-4 w-4" />
@@ -60,18 +64,24 @@ function DashboardLayout() {
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               <Link
+                onClick={() => setSelected("home")}
                 to="/dashboard/home"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg ${
+                  selected === "home" && "bg-muted"
+                } px-3 py-2 text-primary transition-all hover:text-primary`}
               >
                 <Home className="h-4 w-4" />
                 Dashboard
               </Link>
 
               <Link
+                onClick={() => setSelected("books")}
                 to="/dashboard/books"
-                className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg ${
+                  selected === "books" && "bg-muted"
+                } px-3 py-2 text-primary transition-all hover:text-primary`}
               >
-                <Package className="h-4 w-4" />
+                <SquareLibrary className="h-4 w-4" />
                 Books{" "}
               </Link>
               <Link
