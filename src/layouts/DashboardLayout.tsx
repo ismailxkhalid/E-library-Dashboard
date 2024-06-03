@@ -1,4 +1,4 @@
-import { Link, Navigate, Outlet } from "react-router-dom";
+import { Link, NavLink, Navigate, Outlet } from "react-router-dom";
 import {
   Bell,
   BookCopy,
@@ -34,10 +34,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import useTokenStore from "@/store";
-import { useState } from "react";
+import { ModeToggle } from "@/components/ToogleButton";
 
 function DashboardLayout() {
-  const [selected, setSelected] = useState("home");
   const { token, setToken } = useTokenStore();
   if (!token) {
     return <Navigate to="/auth/login" replace />;
@@ -63,34 +62,36 @@ function DashboardLayout() {
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-              <Link
-                onClick={() => setSelected("home")}
+              <NavLink
                 to="/dashboard/home"
-                className={`flex items-center gap-3 rounded-lg ${
-                  selected === "home" && "bg-muted"
-                } px-3 py-2 text-primary transition-all hover:text-primary`}
+                className={({ isActive }) => {
+                  return `flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${
+                    isActive && "bg-muted text-primary"
+                  }`;
+                }}
               >
                 <Home className="h-4 w-4" />
                 Dashboard
-              </Link>
+              </NavLink>
 
-              <Link
-                onClick={() => setSelected("books")}
+              <NavLink
                 to="/dashboard/books"
-                className={`flex items-center gap-3 rounded-lg ${
-                  selected === "books" && "bg-muted"
-                } px-3 py-2 text-primary transition-all hover:text-primary`}
+                className={({ isActive }) => {
+                  return `flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary ${
+                    isActive && "bg-muted text-primary"
+                  }`;
+                }}
               >
                 <SquareLibrary className="h-4 w-4" />
                 Books{" "}
-              </Link>
-              <Link
+              </NavLink>
+              <NavLink
                 to=""
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
               >
                 <Users className="h-4 w-4" />
                 Customers
-              </Link>
+              </NavLink>
               <Link
                 to="#"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
@@ -209,6 +210,7 @@ function DashboardLayout() {
               </div>
             </form>
           </div>
+          <ModeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
