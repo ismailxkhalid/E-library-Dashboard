@@ -91,7 +91,7 @@ const CreateBook = () => {
     defaultValues: {
       title: "",
       genre: "",
-      price: NaN,
+      price: 0.0,
       description: "",
     },
   });
@@ -106,7 +106,9 @@ const CreateBook = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["books"] });
       console.log("Book created successfully");
-      navigate("/dashboard/books");
+      navigate("/dashboard/books", {
+        state: { message: "Book created successfully ✅🥳" },
+      });
     },
   });
 

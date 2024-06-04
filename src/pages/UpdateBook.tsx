@@ -119,7 +119,9 @@ const UpdateBook = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["books"] });
       console.log("Book created successfully");
-      navigate("/dashboard/books");
+      navigate("/dashboard/books", {
+        state: { message: "Book Updated successfully ✅👍" },
+      });
     },
   });
 

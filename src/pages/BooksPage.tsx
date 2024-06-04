@@ -1,4 +1,7 @@
 import { deleteBook, getBooks } from "@/http/api";
+import { ToastContainer, toast } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertDialog,
@@ -46,10 +49,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, CirclePlus, Loader } from "lucide-react";
 import { Book } from "@/types";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const BooksPage = () => {
+  const navigate = useNavigate();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["books"],
     queryFn: getBooks,
@@ -81,7 +85,19 @@ const BooksPage = () => {
       mutation.mutate(selectedBook._id);
     }
     closeAlertDialog();
+    toast(`Book ${selectedBook.title} Deleted Successfully! ✅ `);
   };
+
+  const location = useLocation();
+  const message = location.state?.message;
+
+  useEffect(() => {
+    if (message) {
+      toast(message);
+    }
+    // Clear message state before potentially re-navigating
+    navigate("/dashboard/books", { replace: true }); // Replace history entry
+  }, [message, navigate]);
 
   console.log(data);
   // Function to format the date
@@ -163,10 +179,8 @@ const BooksPage = () => {
                       <TableCell className="hidden sm:table-cell">
                         <img
                           alt="Product image"
-                          className="aspect-square rounded-md object-cover"
-                          height="64"
+                          className="aspect-square rounded-sm object-cover h-24 w-16"
                           src={book.coverImage}
-                          width="64"
                         />
                       </TableCell>
                       <TableCell className="font-medium uppercase">
@@ -247,6 +261,7 @@ const BooksPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <ToastContainer />
     </>
   );
 };
