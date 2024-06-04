@@ -27,17 +27,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
-import { createBook } from "@/http/api";
+import { updateBook } from "@/http/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 
 const formSchema = z.object({
-  title: z.string().min(2, {
+  title: z.string().min(0, {
     message: "Title must be at least 2 characters.",
   }),
-  genre: z.string().min(2, {
+  genre: z.string().min(0, {
     message: "Genre must be at least 2 characters.",
   }),
   price: z
@@ -48,18 +48,18 @@ const formSchema = z.object({
     .refine((value) => Number.isFinite(value), {
       message: "Price must be a valid number.",
     }),
-  description: z.string().min(2, {
+  description: z.string().min(0, {
     message: "Description must be at least 2 characters.",
   }),
   coverImage: z.instanceof(FileList).refine((file) => {
-    return file.length == 1;
+    return file.length == 0 || file.length === 1;
   }, "Cover Image is required"),
   file: z.instanceof(FileList).refine((file) => {
-    return file.length == 1;
+    return file.length == 0 || file.length === 1;
   }, "Book PDF is required"),
 });
 
-const CreateBook = () => {
+const UpdateBook = () => {
   // State to store the image preview URL
   const [coverImagePreview, setCoverImagePreview] = useState("");
 
@@ -84,25 +84,38 @@ const CreateBook = () => {
   };
 
   // Rest of your component code...
+  const { state: book } = useLocation();
+
+  console.log(book.book.title);
+
+  const { _id } = useParams();
   const navigate = useNavigate();
 
+  if (!_id) {
+    return <div>Error: No book ID provided</div>;
+  }
+
+  console.log(_id);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      genre: "",
-      price: NaN,
-      description: "",
+      title: book.book.title,
+      genre: book.book.genre,
+      price: book.book.price,
+      description: book.book.description,
     },
   });
 
   const coverImageRef = form.register("coverImage");
   const fileRef = form.register("file");
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const queryClient = useQueryClient();
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const mutation = useMutation({
-    mutationFn: createBook,
+    mutationFn: (formdata: FormData) => updateBook(_id, formdata),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["books"] });
       console.log("Book created successfully");
@@ -142,7 +155,7 @@ const CreateBook = () => {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Create</BreadcrumbPage>
+                  <BreadcrumbPage>Update</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -156,78 +169,82 @@ const CreateBook = () => {
                 {mutation.isPending && (
                   <LoaderCircle className="animate-spin" />
                 )}
-                <span className="ml-2">Submit</span>
+                <span className="ml-2">Update</span>
               </Button>
             </div>
           </div>
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle>Create a new book</CardTitle>
+              <CardTitle>Update a book</CardTitle>
               <CardDescription>
-                Fill out the form below to create a new book.
+                Fill out the form below to update a book.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="text"
-                            className="w-full"
-                            {...field}
-                            placeholder="Book Title here"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <div className="grid grid-cols-2 gap-4 ">
+                  <div className="">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Title</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="text"
+                              className="w-full"
+                              {...field}
+                              placeholder="Book Title here"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="">
+                    <FormField
+                      control={form.control}
+                      name="genre"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Genre</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="text"
+                              className="w-full"
+                              {...field}
+                              placeholder="Book Genre here"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="">
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Price</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              className="w-full"
+                              {...field}
+                              placeholder="Price in USD$"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
 
-                  <FormField
-                    control={form.control}
-                    name="genre"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Genre</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="text"
-                            className="w-full"
-                            {...field}
-                            placeholder="Book Genre here"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            className="w-full"
-                            {...field}
-                            placeholder="Price in USD $"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
                 <FormField
                   control={form.control}
                   name="description"
@@ -245,6 +262,7 @@ const CreateBook = () => {
                     </FormItem>
                   )}
                 />
+
                 <div className="grid grid-cols-1 gap-6 items-center lg:grid-cols-2">
                   <FormField
                     control={form.control}
@@ -266,7 +284,7 @@ const CreateBook = () => {
                                 <img
                                   id="preview_img"
                                   className="h-28 w-20 object-cover rounded-sm"
-                                  src=" https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
+                                  src={book?.book.coverImage}
                                   alt="Cover image"
                                 />
                               )}
@@ -329,4 +347,4 @@ const CreateBook = () => {
   );
 };
 
-export default CreateBook;
+export default UpdateBook;

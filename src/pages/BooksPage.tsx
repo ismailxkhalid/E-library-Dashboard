@@ -1,5 +1,16 @@
-import { getBooks } from "@/http/api";
-import { useQuery } from "@tanstack/react-query";
+import { deleteBook, getBooks } from "@/http/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,6 +47,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal, CirclePlus, Loader } from "lucide-react";
 import { Book } from "@/types";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const BooksPage = () => {
   const { data, isLoading, isError, error } = useQuery({
@@ -43,6 +55,34 @@ const BooksPage = () => {
     queryFn: getBooks,
     staleTime: 10000, // send request every 10 seconds to server
   });
+  const queryClient = useQueryClient();
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const [selectedBook, setSelectedBook] = useState({} as Book);
+
+  const mutation = useMutation({
+    mutationFn: (bookId: string) => deleteBook(bookId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["books"] });
+    },
+  });
+
+  const handleDeleteClick = (book: Book) => {
+    setSelectedBook(book);
+    setIsAlertDialogOpen(true);
+  };
+
+  const closeAlertDialog = () => {
+    setIsAlertDialogOpen(false);
+    setSelectedBook({} as Book);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedBook) {
+      mutation.mutate(selectedBook._id);
+    }
+    closeAlertDialog();
+  };
+
   console.log(data);
   // Function to format the date
   const formatDate = (isoDate: string) => {
@@ -158,8 +198,17 @@ const BooksPage = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                            <Link
+                              to={`/dashboard/books/update/${book._id}`}
+                              state={{ book: book }}
+                            >
+                              <DropdownMenuItem>Edit</DropdownMenuItem>
+                            </Link>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteClick(book)}
+                            >
+                              Delete
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -170,12 +219,34 @@ const BooksPage = () => {
             </CardContent>
             <CardFooter>
               <div className="text-xs text-muted-foreground">
-                Showing <strong>1-10</strong> of <strong>32</strong> products
+                Showing <strong>1-7</strong> of{" "}
+                <strong>{data?.data.length}</strong> books
               </div>
             </CardFooter>
           </Card>
         </div>
       )}
+
+      <AlertDialog open={isAlertDialogOpen} onOpenChange={closeAlertDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              book and remove it from the list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-500 hover:bg-red-600"
+              onClick={handleConfirmDelete}
+            >
+              Yes, delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
